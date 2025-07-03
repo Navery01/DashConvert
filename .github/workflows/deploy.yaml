@@ -1,12 +1,43 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build application
+      run: npm run build
+      
     - name: Install SSH key
       uses: webfactory/ssh-agent@v0.7.0
       with:
         ssh-private-key: ${{ secrets.SSH_KEY }}
+        
     - name: Add SSH host key to known_hosts
       run: |
         mkdir -p ~/.ssh
-        ssh-keyscan github.com >> ~/.ssh/known_hosts
-    - name: Your SSH command
+        ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
+        
+    - name: Deploy to server
       run: |
-        ssh -T git@github.com
-        # Or your specific SSH command
+        # Replace with your actual deployment commands
+        # Example: rsync -avz --delete .next/ user@server:/path/to/app/
+        echo "Add your deployment commands here"
